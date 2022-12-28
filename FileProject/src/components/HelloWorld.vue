@@ -1,5 +1,4 @@
 <script setup>
-import { def } from '@vue/shared';
 
 </script>
 
