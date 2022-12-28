@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@vitejs/plugin-legacy": "^3.0.1",
+    "axios": "^1.2.1",
     "vue": "^3.2.45"
   },
   "devDependencies": {

@@ -3,11 +3,24 @@
 </script>
 
 <template>
-  <!-- <button id="file">选择</button> -->
   <button id="directory" @click="readDir">选择目录</button>
 </template>
 
 <script>
+import axios from 'axios'
+async function isExist(filePath) {
+  try {
+    const yy = await axios.get(filePath)
+    return true
+  } catch(error) {
+    console.log(error.message)
+    return false
+  }
+}
+const no = await isExist('../../test.js')
+const yes = await isExist('../../package.json')
+console.log(no)
+console.log(yes)
 export default{
   data() {
     return {
