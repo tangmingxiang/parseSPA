@@ -1,11 +1,9 @@
-<script>
-import './js/bunldle.js'
+<script setup>
+import FileInput from './components/FileInput.vue'
 </script>
 
 <template>
-  <div>
-    
-  </div>
+  <FileInput />
 </template>
 
 <style scoped>
