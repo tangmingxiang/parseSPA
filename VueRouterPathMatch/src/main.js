@@ -51,6 +51,8 @@ let childVNode = router.getRoutes()[5].components.default.components.Home.render
 
 const setup = router.getRoutes()[5].components.default.components.HelloWorld.setup(null, {expose: () => { console.log('33') }})
 
+console.table(router.getRoutes()[5].components.default.components.HelloWorld.render)
+
 let childVNode_2 = router.getRoutes()[5].components.default.components.HelloWorld.render.call(vm, vm, [], {test: '传入'}, setup, data, null)
 
 console.log('vnode', tVnode)
