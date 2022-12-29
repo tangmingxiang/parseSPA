@@ -22,8 +22,8 @@ export default{
       ],
       excludeAcceptAllOption: true,
       multiple: false
-    };
-    let fileHandle;
+    }
+    let fileHandle
     document.querySelector('#file').addEventListener('click', async function getFile() {
       // open file picker, destructure the one element returned array
       [fileHandle] = await window.showOpenFilePicker(pickerOpts)
