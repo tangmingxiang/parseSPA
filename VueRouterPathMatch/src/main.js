@@ -2,7 +2,10 @@ import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
 import router from './router'
+import * as vue from 'vue'
 // import { parse, compileStyleAsync } from '@vue/compiler-sfc'
+
+const vid = vue.default ? 2 : 3
 
 const app = createApp(App)
 

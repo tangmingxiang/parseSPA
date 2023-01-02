@@ -23,7 +23,7 @@ export default {
   methods: {
     async parse() {
       // const cc = await import('../../VueRouterPathMatch/src/router')
-      const cc = await import('../../../vue-element-admin/src/router/index.js')
+      // const cc = await import('../../../vue-element-admin/src/router/index.js')
       // const cc = await import('D:/开源-自研/vue-element-admin/src/router/index.js')
       console.log(cc.default)
       console.log(cc.default.getRoutes())
