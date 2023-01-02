@@ -4,46 +4,27 @@ import FileInput from './components/FileInput.vue'
 
 <template>
   <div>
-    <button id="file" @click="getFile">选择</button>
-    <input type="file" id="router" name="router" accept="text/javascript" @change="fileChange" />
+    <!-- <button id="file" @click="getFile">选择</button> -->
+    <!-- <input type="file" id="router" name="router" accept="text/javascript" @change="fileChange" /> -->
+    <input type="text" id="router" name="router" v-model="routerPath" />
     <button @click="parse">解析</button>
   </div>
 </template>
 
 <script>
-const pickerOpts = {
-  types: [
-    {
-      description: 'js',
-      accept: {
-        'text/javascript': ['.js']
-      }
-    },
-  ],
-  excludeAcceptAllOption: true,
-  multiple: false
-}
 import { createWebHistory, createWebHashHistory, createRouterMatcher } from 'vue-router'
+// import { routerPath } from '../parse-vue-spa.js'
 export default {
-  data() {
-    return {
-      file: null
-    }
-  },
+  // data() {
+  //   return {
+  //     routerPath: null
+  //   }
+  // },
   methods: {
-    async getFile() {
-      // open file picker, destructure the one element returned array
-      let [fileHandle] = await window.showOpenFilePicker(pickerOpts)
-      console.log(fileHandle)
-      const content = await fileHandle.getFile()
-      console.log(await content.text())
-      // run code with our fileHandle
-    },
-    fileChange($event) {
-      console.log($event.target.files[0])
-    },
     async parse() {
-      const cc = await import('C:/Users/fli/Desktop/开源-自研/parseSPA/VueRouterPathMatch/src/router/index.js')
+      // const cc = await import('../../VueRouterPathMatch/src/router')
+      const cc = await import('../../../vue-element-admin/src/router/index.js')
+      // const cc = await import('D:/开源-自研/vue-element-admin/src/router/index.js')
       console.log(cc.default)
       console.log(cc.default.getRoutes())
       const dd = createRouterMatcher(cc.default.getRoutes(), {

@@ -1,0 +1,1 @@
+export const routerPath = '/src/router/index'
