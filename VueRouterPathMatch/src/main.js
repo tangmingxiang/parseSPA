@@ -13,6 +13,8 @@ app.use(router)
 
 // app.mount('#app')
 
+console.log(router)
+
 // console.log(JSON.stringify(app.config.globalProperties))
 
 let $route = { path: "/kofs/dasd/dadka"}
@@ -24,6 +26,8 @@ $route = Object.assign($route, router.resolve("/kofs/dasd/dadka"))
 const vm = { $route }
 
 console.log(router.getRoutes())
+
+console.log(router.options.routes)
 
 
 // console.log(router.getRoutes()[5])
