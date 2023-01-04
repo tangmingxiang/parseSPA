@@ -41,6 +41,8 @@ function createVM(component) {
       const Vue = vue.default
       const tempObj = {
         $store,
+        $router: router.resolve({ path: '/redirect' }),
+        $route: router.resolve({ path: '/redirect' }).route,
         $createElement: new Vue().$createElement,
         _self: { },
         _e: function() { console.log('_e') }
@@ -50,19 +52,49 @@ function createVM(component) {
       Object.assign(resultVM, { $store })
     }
   }
+  if ('props' in component) {
+    const tempObj = {}
+    Object.keys(component['props']).forEach(key => {
+      if ('default' in component['props'][key]) {
+        tempObj[key] = typeof component['props'][key]['default'] === 'function' ? component['props'][key]['default']() : component['props'][key]['default']
+      }
+    })
+    Object.assign(resultVM, tempObj)
+  }
   if ('data' in component) {
     const data = component.data()
     Object.assign(resultVM, data)
   }
+  if ('components' in component) {
+    const tempObj = {}
+    Object.keys(component['components']).forEach(async key => {
+      tempObj[key] = {}
+      tempObj[key]['component'] = await getComponent(component['components'][key])
+      tempObj[key]['VM'] = createVM(tempObj[key]['component'])
+    })
+    Object.assign(resultVM, { 'components': tempObj })
+  }
   if ('computed' in component) {
     Object.keys(component['computed']).forEach(key => {
-      resultVM[key] = component['computed'][key].call(resultVM)
+      try {
+        if (typeof component['computed'][key] === 'function') {
+          resultVM[key] = component['computed'][key].call(resultVM)
+        } else {
+          resultVM[key] = component['computed'][key]['get'].call(resultVM)
+        }
+      } catch (e) {
+        console.log(e.message)
+      }
     })
   }
   if ('methods' in component) {
     Object.keys(component['methods']).forEach(key => {
       resultVM[key] = component['methods'][key].bind(resultVM)
     })
+  }
+  if ('watch' in component) {
+    // TODO
+    console.log('watch TODO')
   }
   /** 生命周期函数 */
   const lifeCycleFunction = ['beforeCreate', 'created', 'beforeMount', 'mounted', 'beforeUpdate', 'updated', 'beforeUnMount', 'unmounted', 'beforeDestroy', 'destoryed']
@@ -89,9 +121,11 @@ function createVM(component) {
 (async function test() {
   const comp1 = await getComponent(routes[0].component)
   console.log(comp1)
+  // console.table(comp1.beforeCreate[0])
   const vm = createVM(comp1)
   console.log('vm', vm)
   console.table('render', comp1.render)
+  console.table('props_render', comp1.components.RightPanel.render)
   console.table('vNode', comp1.render.call(vm))
 })()
 /** test */
