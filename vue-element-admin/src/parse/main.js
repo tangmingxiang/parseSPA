@@ -4,7 +4,7 @@ import store from '../store'
 import router from '../router'
 import Cookies from 'js-cookie'
 import enLang from 'element-ui/lib/locale/lang/en'// 如果使用中文语言包请默认支持，无需额外引入，请删除该依赖
-import { createWebHashHistory, createRouterMatcher } from './router@4.js'
+// import { createWebHashHistory, createRouterMatcher } from './router@4.js'
 
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets
 
@@ -47,26 +47,40 @@ Vue.config.productionTip = false
 const routes = router.options.routes
 console.log(routes)
 
-const dd = createRouterMatcher(routes, {
-  history: createWebHashHistory(),
-  routes
-})
-const mat = dd.getRoutes()
-console.log(mat)
+// const dd = createRouterMatcher(routes, {
+//   history: createWebHashHistory(),
+//   routes
+// })
+// const mat = dd.getRoutes()
+// console.log(mat)
 
-let resolveRouter = router.resolve('/dashboard')
-const resolveRouterBak = Object.assign({}, resolveRouter)
-console.log(resolveRouter)
-Vue.util.defineReactive(Vue.prototype, '_route', resolveRouter.route)
+// const resolveRouter = router.resolve('/dashboard')
+// Vue.util.defineReactive(Vue.prototype, '_route', resolveRouter.route)
 
-Vue.prototype._routerRoot = {}
-Vue.prototype._routerRoot._router = router
+Vue.util.defineReactive(Vue.prototype, '_route', {})
+Vue.util.defineReactive(Vue.prototype, '_routePath', '')
 
-Vue.use(Element, {
-  size: Cookies.get('size') || 'medium', // set element-ui default size
-  locale: enLang // 如果使用中文，无需设置，请删除
-})
+/** 可删 */
+// // this._routerRoot._router = router
+// const resolveRouter = router.resolve('/dashboard')
+// // this._route = resolveRouter.route
+// // this._routePath = '/dashboard'
+// Vue.prototype._route = resolveRouter.route
+// Vue.prototype._routePath = '/dashboard'
+// Vue.prototype._routerRoot = {}
+// Vue.prototype._routerRoot._router = router
+/** 可删 */
 
+const _routerRoot = { _router: router }
+Vue.prototype._routerRoot = _routerRoot
+Vue.util.defineReactive(Vue.prototype, '_routerRoot', _routerRoot)
+
+// Vue.prototype._routerRoot = {}
+// Vue.prototype._routerRoot._router = router
+
+let execBeforeHookFlag = 0
+let execAfterHookFlag = 0
+// let renderView = 0
 var View = {
   name: 'RouterView',
   functional: true,
@@ -77,29 +91,33 @@ var View = {
     }
   },
   render: function render(_, ref) {
-    console.log(ref)
     var props = ref.props
     var children = ref.children
     var parent = ref.parent
     var data = ref.data
+    var h = parent.$createElement
 
-    // console.log(Object.getOwnPropertyDescriptors(ref))
-    // console.log(Object.getOwnPropertyDescriptors(ref.parent))
-    // ref.parent.$route = resolveRouter.route
-    // Object.assign(ref.parent, { $route: resolveRouter.route })
+    var resolveRouter = router.resolve(parent._routePath)
+    parent._route = resolveRouter.route
+    var route = resolveRouter && resolveRouter.route
 
+    if (!parent._routePath || !route) {
+      return h()
+    }
+    // TODO hook 的执行位置应该换一下
+    if (resolveRouter && resolveRouter.route && !execBeforeHookFlag) {
+      execBeforeHookFlag = 1
+      router.beforeHooks.forEach(async(beforeHook) => {
+        await beforeHook(resolveRouter.route, null, () => { console.log('before') })
+      })
+    }
     // used by devtools to display a router-view badge
     data.routerView = true
 
     // directly use parent context's createElement() function
     // so that components rendered by router-view can resolve named slots
-    var h = parent.$createElement
     var name = props.name
     // var route = parent.$route
-    var route = resolveRouter && resolveRouter.route
-    if (!route) {
-      return h()
-    }
     var cache = parent._routerViewCache || (parent._routerViewCache = {})
 
     // determine current view depth, also check to see if the tree
@@ -122,8 +140,12 @@ var View = {
       return h(cache[name], data, children)
     }
 
-    // var matched = route.matched[depth]
-    var matched = mat[10]['record']
+    // var matched = mat[10]['record']
+    // depth -= renderView
+    // if (depth < 0) {
+    //   return h()
+    // }
+    var matched = route.matched[depth]
     // render empty node if no matched route
     if (!matched) {
       cache[name] = null
@@ -167,19 +189,30 @@ var View = {
         }
       }
     }
-    resolveRouter = null
-    return h(component, data, children)
+    // TODO hook 的执行位置应该换一下
+    if (!execAfterHookFlag) {
+      execAfterHookFlag = 1
+      router.afterHooks.forEach(async(afterHook) => {
+        await afterHook()
+        console.log('after')
+      })
+    }
+    // return h(component, data)
+    // console.log('component', component)
+    // console.log(data)
+    // console.log(children)
+    // console.table(h)
+    // renderView++
+    if (children) {
+      return h(component, data, children)
+    }
+    return h(component, data)
   }
 }
-
 Vue.component('RouterView', View)
-
-console.log(Vue.prototype)
-console.log(Vue.prototype._routerRoot)
 
 var toTypes = [String, Object]
 var eventTypes = [String, Array]
-
 var Link = {
   name: 'RouterLink',
   props: {
@@ -203,12 +236,11 @@ var Link = {
   },
   render: function render(h) {
     // var this$1 = this
-    console.log(this)
-
     // var router = this.$router
     // var current = this.$route
     // var ref = router.resolve(this.to, current, this.append)
-    var ref = resolveRouterBak
+    // console.log(this.to)
+    var ref = router.resolve(this.to)
     // var location = ref.location
     // var route = ref.route
     var href = ref.href
@@ -280,12 +312,10 @@ var Link = {
     //     data.on = on
     //   }
     // }
-    console.log(this.$slots.default)
     // return h(this.tag, data, this.$slots.default)
-    return h(this.tag, data)
+    return h(this.tag, data, this.$slots.default)
   }
 }
-
 Vue.component('RouterLink', Link)
 
 function resolveProps(route, config) {

@@ -5,6 +5,7 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
+import Dashboard from '@/views/dashboard/index'
 
 /* Router Modules */
 import componentsRouter from './modules/components'
@@ -77,7 +78,8 @@ export const constantRoutes = [
     children: [
       {
         path: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
+        // component: () => import('@/views/dashboard/index'),
+        component: Dashboard,
         name: 'Dashboard',
         meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
       }
