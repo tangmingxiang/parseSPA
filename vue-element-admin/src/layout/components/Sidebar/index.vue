@@ -49,11 +49,6 @@ export default {
     isCollapse() {
       return !this.sidebar.opened
     }
-  },
-  watch: {
-    permission_routes(newVal) {
-      console.log(newVal)
-    }
   }
 }
 </script>

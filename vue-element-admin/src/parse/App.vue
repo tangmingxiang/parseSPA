@@ -17,7 +17,7 @@ export default {
   watch: {
     hash: {
       handler(newVal) {
-        // console.log(11)
+        console.log(11)
         this._routerRoot._router = router
         const resolveRouter = this.$router.resolve(newVal)
         this._route = resolveRouter.route

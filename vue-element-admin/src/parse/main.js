@@ -80,7 +80,7 @@ Vue.util.defineReactive(Vue.prototype, '_routerRoot', _routerRoot)
 
 let execBeforeHookFlag = 0
 let execAfterHookFlag = 0
-// let renderView = 0
+const cacheView = {}
 var View = {
   name: 'RouterView',
   functional: true,
@@ -101,6 +101,8 @@ var View = {
     parent._route = resolveRouter.route
     var route = resolveRouter && resolveRouter.route
 
+    // console.log('depth')
+
     if (!parent._routePath || !route) {
       return h()
     }
@@ -118,41 +120,44 @@ var View = {
     // so that components rendered by router-view can resolve named slots
     var name = props.name
     // var route = parent.$route
-    var cache = parent._routerViewCache || (parent._routerViewCache = {})
+    // var cache = parent._routerViewCache || (parent._routerViewCache = {})
 
     // determine current view depth, also check to see if the tree
     // has been toggled inactive but kept-alive.
     var depth = 0
-    var inactive = false
+    // var inactive = false
     while (parent && parent._routerRoot !== parent) {
       if (parent.$vnode && parent.$vnode.data.routerView) {
         depth++
       }
-      if (parent._inactive) {
-        inactive = true
-      }
+      // if (parent._inactive) {
+      //   inactive = true
+      // }
       parent = parent.$parent
     }
     data.routerViewDepth = depth
 
     // render previous view if the tree is inactive and kept-alive
-    if (inactive) {
-      return h(cache[name], data, children)
-    }
-
-    // var matched = mat[10]['record']
-    // depth -= renderView
-    // if (depth < 0) {
-    //   return h()
+    // if (inactive) {
+    //   return h(cache[name], data, children)
     // }
+    var view_key = ''
+    if (route) {
+      view_key = `${route.path}_${depth}`
+    }
+    if (view_key in cacheView) {
+      console.log(cacheView)
+      return h(cacheView[view_key], data, children)
+    }
     var matched = route.matched[depth]
     // render empty node if no matched route
     if (!matched) {
-      cache[name] = null
+      // cache[name] = null
       return h()
     }
 
-    var component = cache[name] = matched.components[name]
+    // var component = cache[name] = matched.components[name]
+    var component = cacheView[view_key] = matched.components[name]
 
     // attach instance registration hook
     // this will be called in the instance's injected lifecycle hooks
@@ -197,12 +202,7 @@ var View = {
         console.log('after')
       })
     }
-    // return h(component, data)
-    // console.log('component', component)
-    // console.log(data)
-    // console.log(children)
-    // console.table(h)
-    // renderView++
+    console.log('depth', depth)
     if (children) {
       return h(component, data, children)
     }
