@@ -1,66 +1,85 @@
 import App from './App'
 import Vue from 'vue'
-import store from '../store'
-import Cookies from 'js-cookie'
-import enLang from 'element-ui/lib/locale/lang/en'// 如果使用中文语言包请默认支持，无需额外引入，请删除该依赖
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets
-import Element from 'element-ui'
 import '../styles/element-variables.scss'
 import '@/styles/index.scss' // global css
 import '../icons' // icon
 import '../permission' // permission control
 import '../utils/error-log' // error log
-import * as filters from '../filters' // global filters
 import router from '../router'
-// import { createWebHashHistory, createRouterMatcher } from './router@4.js'
-/**
- * If you don't want to use mock-server
- * you want to use MockJs for mock api
- * you can execute: mockXHR()
- *
- * Currently MockJs will be used in the production environment,
- * please remove it before going online ! ! !
- */
 if (process.env.NODE_ENV === 'production') {
   const { mockXHR } = require('../mock')
   mockXHR()
 }
-Vue.use(Element, {
-  size: Cookies.get('size') || 'medium', // set element-ui default size
-  locale: enLang // 如果使用中文，无需设置，请删除
-})
-// register global utility filters
-Object.keys(filters).forEach(key => {
-  Vue.filter(key, filters[key])
-})
 Vue.config.productionTip = false
 
-const _routerRoot = { _router: router }
-Vue.prototype._routerRoot = _routerRoot
-Vue.util.defineReactive(Vue.prototype, '_routerRoot', _routerRoot)
+const childView = router.options.routes[5].children[0].component
+console.log(router.options.routes)
 
-const routes = router.options.routes
-Object.defineProperty(Vue.prototype, '$routes', {
-  get: function get() { return routes }
-})
+// let cnt = 1
 
-// const resolveRouter = this.$router.resolve(newVal)
-// this.$route = resolveRouter.route
+// var View = {
+//   name: 'RouterView',
+//   functional: true,
+//   props: {
+//     name: {
+//       type: String,
+//       default: 'default'
+//     }
+//   },
+//   render: function render(_, ref) {
+//     console.log('<router-view></router-view>')
+//     var parent = ref.parent
+//     var h = parent.$createElement
+//     return h(childView)
+//     // if (cnt > 0) {
+//     //   return h(childView)
+//     // }
+//     // return h()
+//   }
+// }
+// Vue.component('RouterView', View)
 
-// Object.defineProperty(Vue.prototype, '$route', {
-//   get: function get() { return this._routerRoot._route }
-// })
-// const dd = createRouterMatcher(routes, {
-//   history: createWebHashHistory(),
-//   routes
-// })
-// const mat = dd.getRoutes()
-// console.log(mat)
-// const resolveRouter = router.resolve('/dashboard')
-// Vue.util.defineReactive(Vue.prototype, '_route', resolveRouter.route)
+// var toTypes = [String, Object]
+// var eventTypes = [String, Array]
+// var Link = {
+//   name: 'RouterLink',
+//   props: {
+//     to: {
+//       type: toTypes,
+//       required: true
+//     },
+//     tag: {
+//       type: String,
+//       default: 'a'
+//     },
+//     exact: Boolean,
+//     append: Boolean,
+//     replace: Boolean,
+//     activeClass: String,
+//     exactActiveClass: String,
+//     event: {
+//       type: eventTypes,
+//       default: 'click'
+//     }
+//   },
+//   render: function render(h) {
+//     // var ref = router.resolve(this.to)
+//     // var href = ref.href
+//     var href = 'javascript:;'
+
+//     var classes = {}
+//     var data = {
+//       class: classes
+//     }
+//     data.on = function() { console.log('路由跳转') }
+//     data.attrs = { href: href }
+//     return h(this.tag, data, this.$slots.default)
+//   }
+// }
+// Vue.component('RouterLink', Link)
 
 new Vue({
   el: '#app',
-  store,
   render: h => h(App)
 })
